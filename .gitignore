@@ -1,0 +1,18 @@
+# Signaturschlüssel nie ins Repo
+*.jks
+*.keystore
+# Von Bubblewrap erzeugt (aus twa-manifest.json neu erzeugbar)
+app/
+gradle/
+build/
+.gradle/
+*.apk
+*.aab
+*.idsig
+gradlew
+gradlew.bat
+gradle.properties
+settings.gradle
+build.gradle
+manifest-checksum.txt
+store_icon.png

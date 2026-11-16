@@ -1,0 +1,48 @@
+{
+  "packageId": "app.drinktracker",
+  "host": "drink-tracker.app",
+  "name": "Drink-Tracker",
+  "launcherName": "Drink-Tracker",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#0B0914",
+  "themeColorDark": "#0B0914",
+  "navigationColor": "#0B0914",
+  "navigationColorDark": "#0B0914",
+  "navigationDividerColor": "#0B0914",
+  "navigationDividerColorDark": "#0B0914",
+  "backgroundColor": "#0B0914",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://drink-tracker.app/pwa-512.png",
+  "maskableIconUrl": "https://drink-tracker.app/pwa-maskable-512.png",
+  "monochromeIconUrl": "https://drink-tracker.app/badge-96.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./upload-key.jks",
+    "alias": "upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Statistik",
+      "shortName": "Statistik",
+      "url": "https://drink-tracker.app/stats",
+      "chosenIconUrl": "https://drink-tracker.app/pwa-192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://drink-tracker.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": { "enabled": false },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://drink-tracker.app/",
+  "minSdkVersion": 21,
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "fingerprints": []
+}
