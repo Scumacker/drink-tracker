@@ -41,7 +41,7 @@
   "isChromeOSOnly": false,
   "isMetaQuest": false,
   "fullScopeUrl": "https://drink-tracker.app/",
-  "minSdkVersion": 21,
+  "minSdkVersion": 24,
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "fingerprints": []
