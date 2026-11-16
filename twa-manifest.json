@@ -1,8 +1,8 @@
 {
   "packageId": "app.drinktracker",
   "host": "drink-tracker.app",
-  "name": "Drink-Tracker",
-  "launcherName": "Drink-Tracker",
+  "name": "Stammtisch",
+  "launcherName": "Stammtisch",
   "display": "standalone",
   "orientation": "portrait",
   "themeColor": "#0B0914",

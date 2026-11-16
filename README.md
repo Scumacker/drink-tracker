@@ -1,4 +1,4 @@
-# Drink-Tracker für Android
+# Stammtisch für Android
 
 Die Android-App ist eine dünne Hülle um https://drink-tracker.app, erzeugt mit
 [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap). Dieses Repo enthält nur die Beschreibung
