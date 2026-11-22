@@ -1,0 +1,44 @@
+# XcodeGen-Beschreibung der iOS-App. Das Xcode-Projekt wird daraus erzeugt (`xcodegen generate`) und
+# nicht eingecheckt. Bauen: siehe README.md, Abschnitt «iOS».
+name: Stammtisch
+options:
+  bundleIdPrefix: app
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    # Domain der Web-App; Info.plist und Entitlements lesen sie von hier
+    STAMMTISCH_HOST: drink-tracker.app
+targets:
+  Stammtisch:
+    type: application
+    platform: iOS
+    sources:
+      - path: Stammtisch
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.drinktracker
+        PRODUCT_NAME: Stammtisch
+        INFOPLIST_FILE: Stammtisch/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Stammtisch/Stammtisch.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        ENABLE_USER_SCRIPT_SANDBOXING: YES
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
+schemes:
+  Stammtisch:
+    build:
+      targets:
+        Stammtisch: all
+    run:
+      config: Debug
+    archive:
+      config: Release

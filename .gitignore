@@ -16,3 +16,17 @@ settings.gradle
 build.gradle
 manifest-checksum.txt
 store_icon.png
+# iOS: Xcode-Projekt erzeugt XcodeGen aus ios/project.yml
+ios/Stammtisch.xcodeproj/
+ios/build/
+ios/build.log
+ios/*.ipa
+ios/*.p12
+ios/*.p8
+ios/*.mobileprovision
+ios/fastlane/report.xml
+ios/fastlane/README.md
+ios/vendor/
+ios/.bundle/
+xcuserdata/
+DerivedData/
