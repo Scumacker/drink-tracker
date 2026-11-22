@@ -1,0 +1,134 @@
+# iOS-App bauen und zu TestFlight laden. Die App zeigt drink-tracker.app in einer WKWebView mit nativen
+# Mitteilungen (APNs); ein neuer Build ist nur nötig, wenn sich etwas unter ios/ ändert.
+#
+# «Prüfen» läuft bei jedem Push und Pull Request auf ios/ und baut ohne Signatur für den Simulator
+# (geht ohne Apple-Konto). «TestFlight» läuft bei Push auf main und von Hand (Actions → «iOS-App» →
+# «Run workflow»), sobald die Secrets gesetzt sind.
+#
+# Secrets (Settings → Secrets and variables → Actions), Anleitung in README.md:
+#   IOS_TEAM_ID            Team-ID aus developer.apple.com → Membership (10 Zeichen)
+#   ASC_KEY_ID             App Store Connect API-Schlüssel (Rolle Admin): Key ID
+#   ASC_ISSUER_ID          … Issuer ID
+#   ASC_KEY_P8             … Inhalt der Datei AuthKey_XXXXXXXXXX.p8
+#   IOS_DIST_PRIVATE_KEY   Privater Schlüssel (PEM) für das Verteilungszertifikat; das Zertifikat selbst
+#                          legt der Workflow beim ersten Lauf an und findet es danach wieder
+name: iOS-App
+
+on:
+  push:
+    branches: [main]
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  pull_request:
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: "Versionsname, z. B. 1.0.1"
+        required: true
+        default: "1.0.0"
+      hochladen:
+        description: "Zu TestFlight laden (sonst nur bauen und signieren)"
+        type: boolean
+        default: true
+      changelog:
+        description: "Was ist neu? (für die Tester)"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruefen:
+    name: Prüfen (Simulator, ohne Signatur)
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode und XcodeGen
+        run: |
+          xcodebuild -version
+          brew install xcodegen
+
+      - name: Projekt erzeugen
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Bauen
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Stammtisch.xcodeproj \
+            -scheme Stammtisch \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO | tee build.log | grep -E "error:|warning: .*Stammtisch/|BUILD" || true
+          grep -q "BUILD SUCCEEDED" build.log
+
+  testflight:
+    name: TestFlight
+    needs: pruefen
+    if: github.event_name != 'pull_request'
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      IOS_DIST_PRIVATE_KEY: ${{ secrets.IOS_DIST_PRIVATE_KEY }}
+      VERSION_NAME: ${{ inputs.versionName || '1.0.0' }}
+      # Build-Nummer = Laufnummer des Workflows, steigt bei jedem Lauf
+      BUILD_NUMBER: ${{ github.run_number }}
+      HOCHLADEN: ${{ github.event_name == 'push' || inputs.hochladen }}
+      CHANGELOG: ${{ inputs.changelog }}
+    steps:
+      - name: Secrets vorhanden?
+        id: secrets
+        run: |
+          fehlt=""
+          for s in IOS_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 IOS_DIST_PRIVATE_KEY; do
+            [ -n "${!s}" ] || fehlt="$fehlt $s"
+          done
+          if [ -n "$fehlt" ]; then
+            echo "::warning::TestFlight übersprungen, es fehlen Secrets:$fehlt (siehe README.md)"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ok == 'true'
+
+      - uses: ruby/setup-ruby@v1
+        if: steps.secrets.outputs.ok == 'true'
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Projekt erzeugen
+        if: steps.secrets.outputs.ok == 'true'
+        working-directory: ios
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Signieren, bauen, hochladen
+        if: steps.secrets.outputs.ok == 'true'
+        working-directory: ios
+        run: bundle exec fastlane ios testflight_laden
+
+      - uses: actions/upload-artifact@v4
+        if: steps.secrets.outputs.ok == 'true'
+        with:
+          name: stammtisch-ios-${{ env.VERSION_NAME }}-${{ github.run_number }}
+          path: ios/build/Stammtisch.ipa
+          if-no-files-found: warn
+          retention-days: 14
