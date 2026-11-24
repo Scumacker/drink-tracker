@@ -280,17 +280,34 @@ private final class SchwacheNachricht: NSObject, WKScriptMessageHandler {
     }
 }
 
+/// System-Haptik. Stile kommen von src/lib/haptik.ts (Repo stammtisch): light/medium/heavy für Stösse,
+/// selection beim Auswählen, success/warning/error für Ergebnisse (Gewinn, Niete, Verlierer).
 enum Haptik {
-    static func spielen(_ staerke: String) {
-        let stil: UIImpactFeedbackGenerator.FeedbackStyle
-        switch staerke {
-        case "heavy": stil = .heavy
-        case "medium": stil = .medium
-        default: stil = .light
+    static func spielen(_ stil: String) {
+        switch stil {
+        case "success": benachrichtigen(.success)
+        case "warning": benachrichtigen(.warning)
+        case "error": benachrichtigen(.error)
+        case "selection":
+            let g = UISelectionFeedbackGenerator()
+            g.prepare()
+            g.selectionChanged()
+        case "heavy": stoss(.heavy)
+        case "medium": stoss(.medium)
+        default: stoss(.light)
         }
+    }
+
+    private static func stoss(_ stil: UIImpactFeedbackGenerator.FeedbackStyle) {
         let g = UIImpactFeedbackGenerator(style: stil)
         g.prepare()
         g.impactOccurred()
+    }
+
+    private static func benachrichtigen(_ art: UINotificationFeedbackGenerator.FeedbackType) {
+        let g = UINotificationFeedbackGenerator()
+        g.prepare()
+        g.notificationOccurred(art)
     }
 }
 
